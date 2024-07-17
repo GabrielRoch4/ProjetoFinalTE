@@ -6,22 +6,27 @@ import (
 	"net/http"
 )
 
-func GetProfessor(w http.ResponseWriter, r *http.Request) {
+func GetTurma(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return
 	}
 
-	gabriel := models.Professor{
-		Name:  "Gabriel",
-		Email: "gabriel@gmail.com",
-		CPF:   "12312312311",
+	ads := models.Turma{
+		Name:     "ADS",
+		Semestre: 1,
+		Ano:      2024,
+		Professor: models.Professor{
+			Name:  "André",
+			Email: "andre@gmail.com",
+			CPF:   "12345678910",
+		},
 	}
 
-	fmt.Fprintf(w, "%+v", gabriel)
+	fmt.Fprintf(w, "%+v", ads)
 }
 
-func CreateProfessor(w http.ResponseWriter, r *http.Request) {
+func CreateTurma(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return
@@ -30,7 +35,7 @@ func CreateProfessor(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Criado")
 }
 
-func UpdateProfessor(w http.ResponseWriter, r *http.Request) {
+func UpdateTurma(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return
@@ -39,7 +44,7 @@ func UpdateProfessor(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Atualizado")
 }
 
-func DeleteProfessor(w http.ResponseWriter, r *http.Request) {
+func DeleteTurma(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return

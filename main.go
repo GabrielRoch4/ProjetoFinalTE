@@ -1,12 +1,14 @@
 package main
 
 import (
-	"ProjetoFinal/handlers"
+	"ProjetoFinal/routes"
 	"net/http"
 )
 
 func main() {
-	http.HandleFunc("/professor", handlers.ProfessorHandler)
+
+	routes.TurmaRoutes()
+	routes.ProfessorRoutes()
 
 	_ = http.ListenAndServe(":3333", nil)
 }
