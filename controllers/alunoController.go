@@ -6,22 +6,21 @@ import (
 	"net/http"
 )
 
-func GetTurma(w http.ResponseWriter, r *http.Request) {
+func GetAluno(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return
 	}
 
-	ads := models.Turma{
-		Name:     "ADS",
-		Semestre: 1,
-		Ano:      2024,
+	paulo := models.Aluno{
+		Name:      "Paulo",
+		Matricula: 1,
 	}
 
-	fmt.Fprintf(w, "%+v", ads)
+	fmt.Fprintf(w, "%+v", paulo)
 }
 
-func CreateTurma(w http.ResponseWriter, r *http.Request) {
+func CreateAluno(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return
@@ -30,7 +29,7 @@ func CreateTurma(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Criado")
 }
 
-func UpdateTurma(w http.ResponseWriter, r *http.Request) {
+func UpdateAluno(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return
@@ -39,7 +38,7 @@ func UpdateTurma(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Atualizado")
 }
 
-func DeleteTurma(w http.ResponseWriter, r *http.Request) {
+func DeleteAluno(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return

@@ -1,8 +1,7 @@
 package models
 
 type Turma struct {
-	Name      string
-	Semestre  int
-	Ano       int
-	Professor Professor
+	Name     string
+	Semestre int
+	Ano      int
 }
