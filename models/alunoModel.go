@@ -1,6 +1,13 @@
 package models
 
+import (
+	"time"
+)
+
 type Aluno struct {
-	Name      string
-	Matricula int
+	ID        uint       `gorm:"primaryKey;autoIncrement"`
+	Name      string     `gorm:"not null;size:100"`
+	Matricula int        `gorm:"not null;size:100"`
+	CreatedAt *time.Time `gorm:"autoCreateTime"`
+	UpdatedAt *time.Time `gorm:"autoUpdateTime"`
 }
