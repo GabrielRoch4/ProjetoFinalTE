@@ -28,6 +28,35 @@ func GetProfessor(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(professors)
 }
 
+func GetProfessorPorID(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Obtendo o ID a partir dos parâmetros de consulta
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, "ID não fornecido", http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id <= 0 {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	professor, err := professorRepo.FindByID(uint(id))
+	if err != nil {
+		http.Error(w, "Erro ao buscar professor", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(professor)
+}
+
 func CreateProfessor(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
@@ -56,6 +85,7 @@ func UpdateProfessor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var updatedData models.Professor
+
 	if err := json.NewDecoder(r.Body).Decode(&updatedData); err != nil {
 		http.Error(w, "Dados inválidos", http.StatusBadRequest)
 		return
