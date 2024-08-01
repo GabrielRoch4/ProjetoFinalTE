@@ -2,14 +2,14 @@ package controllers
 
 import (
 	"ProjetoFinal/models"
-	repository "ProjetoFinal/repositories"
+	"ProjetoFinal/repositories"
 	"encoding/json"
 	"net/http"
 	"strconv"
 )
 
 // Repositório de professor
-var professorRepo = repository.NewProfessorRepository()
+var professorRepo = repositories.NewProfessorRepository()
 
 func GetProfessor(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {

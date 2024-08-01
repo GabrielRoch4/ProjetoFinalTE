@@ -1,5 +1,5 @@
 // repository/professorRepository.go
-package repository
+package repositories
 
 import (
 	"ProjetoFinal/configs/database"
