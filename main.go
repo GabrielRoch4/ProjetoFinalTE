@@ -8,10 +8,7 @@ import (
 
 func main() {
 
-	routes.TurmaRoutes()
-	routes.ProfessorRoutes()
-	routes.AlunoRoutes()
-	routes.AtividadeRoutes()
+	routes.Router()
 
 	database.DatabaseConnection()
 
