@@ -2,9 +2,14 @@ package controllers
 
 import (
 	"ProjetoFinal/models"
-	"fmt"
+	repository "ProjetoFinal/repositories"
+	"encoding/json"
 	"net/http"
+	"strconv"
 )
+
+// Repositório de professor
+var professorRepo = repository.NewProfessorRepository()
 
 func GetProfessor(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -12,13 +17,15 @@ func GetProfessor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gabriel := models.Professor{
-		Name:  "Gabriel",
-		Email: "gabriel@gmail.com",
-		CPF:   "12312312311",
+	// Exemplo: obter todos os professores
+	professors, err := professorRepo.FindAll()
+	if err != nil {
+		http.Error(w, "Erro ao obter professores", http.StatusInternalServerError)
+		return
 	}
 
-	fmt.Fprintf(w, "%+v", gabriel)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(professors)
 }
 
 func CreateProfessor(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +34,19 @@ func CreateProfessor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Criado")
+	var professor models.Professor
+	if err := json.NewDecoder(r.Body).Decode(&professor); err != nil {
+		http.Error(w, "Dados inválidos", http.StatusBadRequest)
+		return
+	}
+
+	if err := professorRepo.Create(&professor); err != nil {
+		http.Error(w, "Erro ao criar professor", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(professor)
 }
 
 func UpdateProfessor(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +55,31 @@ func UpdateProfessor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Atualizado")
+	var updatedData models.Professor
+	if err := json.NewDecoder(r.Body).Decode(&updatedData); err != nil {
+		http.Error(w, "Dados inválidos", http.StatusBadRequest)
+		return
+	}
+
+	// Buscando o professor atual no banco de dados
+	existingProfessor, err := professorRepo.FindByID(updatedData.ID)
+	if err != nil {
+		http.Error(w, "Erro ao buscar professor", http.StatusInternalServerError)
+		return
+	}
+
+	// Atualizando apenas os campos desejados
+	existingProfessor.Name = updatedData.Name
+	existingProfessor.Email = updatedData.Email
+	existingProfessor.CPF = updatedData.CPF
+
+	if err := professorRepo.Update(existingProfessor); err != nil {
+		http.Error(w, "Erro ao atualizar professor", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode("Atualizado com sucesso!")
 }
 
 func DeleteProfessor(w http.ResponseWriter, r *http.Request) {
@@ -45,5 +88,19 @@ func DeleteProfessor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Deletado")
+	// Supondo que o ID venha como um parâmetro na URL
+	idStr := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id <= 0 {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	if err := professorRepo.Delete(uint(id)); err != nil {
+		http.Error(w, "Erro ao deletar professor", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode("Deletado com sucesso!")
 }
