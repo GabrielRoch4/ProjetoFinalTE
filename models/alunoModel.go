@@ -11,3 +11,7 @@ type Aluno struct {
 	CreatedAt *time.Time `gorm:"autoCreateTime"`
 	UpdatedAt *time.Time `gorm:"autoUpdateTime"`
 }
+
+func (Aluno) TableName() string {
+	return "alunos"
+}
