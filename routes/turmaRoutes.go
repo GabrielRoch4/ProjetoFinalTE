@@ -6,8 +6,9 @@ import (
 )
 
 func TurmaRoutes(mux *http.ServeMux) {
-	http.HandleFunc("/turmas", controllers.GetTurma)
-	http.HandleFunc("/turmas/cadastrar", controllers.CreateTurma)
-	http.HandleFunc("/turmas/atualizar", controllers.UpdateTurma)
-	http.HandleFunc("/turmas/deletar", controllers.DeleteTurma)
+	mux.HandleFunc("/turmas", controllers.GetTurma)
+	mux.HandleFunc("/turmas/", controllers.GetTurmaPorID)
+	mux.HandleFunc("/turmas/cadastrar", controllers.CreateTurma)
+	mux.HandleFunc("/turmas/atualizar", controllers.UpdateTurma)
+	mux.HandleFunc("/turmas/deletar", controllers.DeleteTurma)
 }
