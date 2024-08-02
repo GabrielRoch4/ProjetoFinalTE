@@ -94,7 +94,7 @@ func UpdateProfessor(w http.ResponseWriter, r *http.Request) {
 	// Buscando o professor atual no banco de dados
 	existingProfessor, err := professorRepo.FindByID(updatedData.ID)
 	if err != nil {
-		http.Error(w, "Erro ao buscar professor", http.StatusInternalServerError)
+		http.Error(w, "Professor não encontrado", http.StatusNotFound)
 		return
 	}
 

@@ -90,7 +90,7 @@ func UpdateAluno(w http.ResponseWriter, r *http.Request) {
 
 	existingAluno, err := alunoRepo.FindByID(updatedData.ID)
 	if err != nil {
-		http.Error(w, "Erro ao buscar aluno", http.StatusInternalServerError)
+		http.Error(w, "Aluno não encontrado", http.StatusNotFound)
 		return
 	}
 
