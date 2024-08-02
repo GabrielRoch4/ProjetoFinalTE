@@ -23,9 +23,9 @@ func main() {
 // configureCORS configura o middleware CORS
 func configureCORS(handler http.Handler) http.Handler {
 	corsOptions := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},                             // Permite todas as origens
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},  // Métodos permitidos
-		AllowedHeaders:   []string{"Content-Type", "Authorization"}, // Cabeçalhos permitidos
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
 	})
 	return corsOptions.Handler(handler)
