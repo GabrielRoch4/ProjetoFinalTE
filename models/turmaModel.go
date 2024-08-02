@@ -6,7 +6,7 @@ import (
 
 type Turma struct {
 	ID        uint      `gorm:"primaryKey;autoIncrement"`
-	Name      string    `gorm:"not null;size:100"`
+	Nome      string    `gorm:"not null;size:100"`
 	Semestre  int       `gorm:"not null"`
 	Ano       int       `gorm:"not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`

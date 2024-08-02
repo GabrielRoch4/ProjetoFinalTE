@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func TurmaRoutes() {
+func TurmaRoutes(mux *http.ServeMux) {
 	http.HandleFunc("/turmas", controllers.GetTurma)
 	http.HandleFunc("/turmas/cadastrar", controllers.CreateTurma)
 	http.HandleFunc("/turmas/atualizar", controllers.UpdateTurma)

@@ -99,7 +99,7 @@ func UpdateProfessor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Atualizando apenas os campos desejados
-	existingProfessor.Name = updatedData.Name
+	existingProfessor.Nome = updatedData.Nome
 	existingProfessor.Email = updatedData.Email
 	existingProfessor.CPF = updatedData.CPF
 

@@ -94,7 +94,7 @@ func UpdateAluno(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existingAluno.Name = updatedData.Name
+	existingAluno.Nome = updatedData.Nome
 	existingAluno.Matricula = updatedData.Matricula
 
 	if err := alunoRepo.Update(existingAluno); err != nil {

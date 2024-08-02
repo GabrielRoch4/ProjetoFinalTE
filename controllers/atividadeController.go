@@ -16,12 +16,12 @@ func GetAtividade(w http.ResponseWriter, r *http.Request) {
 	now := time.Now()
 
 	atividade1 := models.Atividade{
-		Name:        "Trabalho Final",
+		Nome:        "Trabalho Final",
 		Valor:       99.50,
 		DataEntrega: now,
 	}
 
-	fmt.Fprintf(w, "Name: %s, Valor: %.2f, DataEntrega: %s", atividade1.Name, atividade1.Valor,
+	fmt.Fprintf(w, "Name: %s, Valor: %.2f, DataEntrega: %s", atividade1.Nome, atividade1.Valor,
 		atividade1.DataEntrega.Format("02/01/2006 15:04:05"))
 }
 

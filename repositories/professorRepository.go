@@ -45,7 +45,7 @@ func (r *professorRepositoryImpl) FindAll() ([]models.Professor, error) {
 // Update atualiza um professor existente no banco de dados
 func (r *professorRepositoryImpl) Update(professor *models.Professor) error {
 	return database.DB.Model(&models.Professor{}).Where("id = ?", professor.ID).Updates(map[string]interface{}{
-		"Name":  professor.Name,
+		"Nome":  professor.Nome,
 		"Email": professor.Email,
 		"CPF":   professor.CPF,
 	}).Error

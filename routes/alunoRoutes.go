@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func AlunoRoutes() {
+func AlunoRoutes(mux *http.ServeMux) {
 	http.HandleFunc("/alunos", controllers.GetAluno)
 	http.HandleFunc("/alunos/", controllers.GetAlunoPorID)
 	http.HandleFunc("/alunos/cadastrar", controllers.CreateAluno)

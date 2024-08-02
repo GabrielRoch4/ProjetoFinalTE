@@ -44,7 +44,7 @@ func (r *alunoRepositoryImpl) FindAll() ([]models.Aluno, error) {
 // Update atualiza um aluno existente no banco de dados
 func (r *alunoRepositoryImpl) Update(aluno *models.Aluno) error {
 	return database.DB.Model(&models.Aluno{}).Where("id = ?", aluno.ID).Updates(map[string]interface{}{
-		"Name":      aluno.Name,
+		"Nome":      aluno.Nome,
 		"Matricula": aluno.Matricula,
 	}).Error
 }

@@ -13,7 +13,7 @@ func GetTurma(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ads := models.Turma{
-		Name:     "ADS",
+		Nome:     "ADS",
 		Semestre: 1,
 		Ano:      2024,
 	}
