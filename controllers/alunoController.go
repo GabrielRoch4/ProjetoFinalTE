@@ -112,6 +112,7 @@ func DeleteAluno(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Obtendo o ID a partir dos parâmetros de consulta
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {
 		http.Error(w, "ID não fornecido", http.StatusBadRequest)
@@ -124,7 +125,20 @@ func DeleteAluno(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := alunoRepo.Delete(uint(id)); err != nil {
+	// Verificando se o professor existe
+	aluno, err := alunoRepo.FindByID(uint(id))
+	if err != nil {
+		http.Error(w, "Aluno não encontrado", http.StatusNotFound)
+		return
+	}
+	if aluno == nil {
+		http.Error(w, "Aluno não encontrado", http.StatusNotFound)
+		return
+	}
+
+	// Tentativa de exclusão do professor pelo ID
+	err = alunoRepo.Delete(uint(id))
+	if err != nil {
 		http.Error(w, "Erro ao deletar aluno", http.StatusInternalServerError)
 		return
 	}

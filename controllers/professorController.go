@@ -118,15 +118,33 @@ func DeleteProfessor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Supondo que o ID venha como um parâmetro na URL
+	// Obtendo o ID a partir dos parâmetros de consulta
 	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, "ID não fornecido", http.StatusBadRequest)
+		return
+	}
+
 	id, err := strconv.Atoi(idStr)
 	if err != nil || id <= 0 {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
 		return
 	}
 
-	if err := professorRepo.Delete(uint(id)); err != nil {
+	// Verificando se o professor existe
+	professor, err := professorRepo.FindByID(uint(id))
+	if err != nil {
+		http.Error(w, "Professor não encontrado", http.StatusNotFound)
+		return
+	}
+	if professor == nil {
+		http.Error(w, "Professor não encontrado", http.StatusNotFound)
+		return
+	}
+
+	// Tentativa de exclusão do professor pelo ID
+	err = professorRepo.Delete(uint(id))
+	if err != nil {
 		http.Error(w, "Erro ao deletar professor", http.StatusInternalServerError)
 		return
 	}
