@@ -22,7 +22,16 @@ func GetAluno(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Caso a lista de alunos esteja vazia, retornará um array vazio
+	if len(alunos) == 0 {
+		w.Header().Set("Content-Type", "application/json")
+		http.Error(w, "Não há alunos cadastrados", http.StatusNotFound)
+		return
+	}
+
+	// Se houver alunos, retornará a lista normalmente
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(alunos)
 }
 

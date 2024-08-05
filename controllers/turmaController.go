@@ -22,7 +22,15 @@ func GetTurma(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(Turmas) == 0 {
+		w.Header().Set("Content-Type", "application/json")
+		http.Error(w, "Não há turmas cadastradas", http.StatusNotFound)
+		return
+	}
+
+	// Se houver alunos, retornará a lista normalmente
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(Turmas)
 }
 

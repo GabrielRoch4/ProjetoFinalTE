@@ -18,14 +18,21 @@ func GetProfessor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Exemplo: obter todos os professores
-	professors, err := professorRepo.FindAll()
+	professores, err := professorRepo.FindAll()
 	if err != nil {
 		http.Error(w, "Erro ao obter professores", http.StatusInternalServerError)
 		return
 	}
+	if len(professores) == 0 {
+		w.Header().Set("Content-Type", "application/json")
+		http.Error(w, "Não há professores cadastrados", http.StatusNotFound)
+		return
+	}
 
+	// Se houver alunos, retornará a lista normalmente
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(professors)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(professores)
 }
 
 func GetProfessorPorID(w http.ResponseWriter, r *http.Request) {
