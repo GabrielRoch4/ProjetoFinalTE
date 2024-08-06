@@ -6,9 +6,9 @@ import (
 )
 
 func AtividadeRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/turmas/atividades", controllers.GetAtividade)
-	mux.HandleFunc("/turmas/atividades/", controllers.GetAtividadePorID)
-	mux.HandleFunc("/turmas/atividades/cadastrar", controllers.CreateAtividade)
-	mux.HandleFunc("/turmas/atividades/atualizar", controllers.UpdateAtividade)
-	mux.HandleFunc("/turmas/atividades/deletar", controllers.DeleteAtividade)
+	mux.HandleFunc("/atividades", controllers.GetAtividade)
+	mux.HandleFunc("/atividades/", controllers.GetAtividadePorID)
+	mux.HandleFunc("/atividades/cadastrar", controllers.CreateAtividade)
+	mux.HandleFunc("/atividades/atualizar", controllers.UpdateAtividade)
+	mux.HandleFunc("/atividades/deletar", controllers.DeleteAtividade)
 }
