@@ -25,7 +25,7 @@ func (r *TurmaRepositoryImpl) Create(turma *models.Turma) error {
 
 func (r *TurmaRepositoryImpl) FindByID(id uint) (*models.Turma, error) {
 	var turma models.Turma
-	err := database.DB.Preload("Alunos").First(&turma, id).Error
+	err := database.DB.Preload("Alunos").Preload("Atividades").First(&turma, id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (r *TurmaRepositoryImpl) FindByID(id uint) (*models.Turma, error) {
 
 func (r *TurmaRepositoryImpl) FindAll() ([]models.Turma, error) {
 	var turmas []models.Turma
-	err := database.DB.Preload("Alunos").Find(&turmas).Error
+	err := database.DB.Preload("Alunos").Preload("Atividades").Find(&turmas).Error
 	return turmas, err
 }
 
