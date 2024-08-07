@@ -9,6 +9,7 @@ import (
 )
 
 var atividadeRepo = repositories.NewAtividadeRepository()
+var notaRepo = repositories.NewNotaRepository()
 
 func GetAtividades(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -159,4 +160,82 @@ func DeleteAtividade(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode("Deletado com sucesso!")
+}
+
+func AtribuirNota(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var input struct {
+		AlunoID     uint    `json:"aluno_id"`
+		AtividadeID uint    `json:"atividade_id"`
+		Nota        float64 `json:"nota"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Dados inválidos", http.StatusBadRequest)
+		return
+	}
+
+	// Validação dos dados
+	if input.Nota < 0 {
+		http.Error(w, "Valor da nota inválido", http.StatusBadRequest)
+		return
+	}
+
+	// Verificar se a atividade existe
+	atividade, err := atividadeRepo.FindByID(input.AtividadeID)
+	if err != nil {
+		http.Error(w, "Erro ao buscar atividade", http.StatusInternalServerError)
+		return
+	}
+
+	if atividade == nil {
+		http.Error(w, "Atividade não encontrada", http.StatusNotFound)
+		return
+	}
+
+	// Verificar se o aluno existe
+	aluno, err := alunoRepo.FindByID(input.AlunoID)
+	if err != nil {
+		http.Error(w, "Erro ao buscar aluno", http.StatusInternalServerError)
+		return
+	}
+
+	if aluno == nil {
+		http.Error(w, "Aluno não encontrado", http.StatusNotFound)
+		return
+	}
+
+	// Verificar se a nota já existe para o aluno e a atividade
+	nota, err := notaRepo.FindByAlunoAndAtividade(input.AlunoID, input.AtividadeID)
+	if err != nil && err.Error() != "record not found" {
+		http.Error(w, "Erro ao buscar nota", http.StatusInternalServerError)
+		return
+	}
+
+	if nota != nil {
+		// Atualizar nota existente
+		nota.Nota = input.Nota
+		if err := notaRepo.Update(nota); err != nil {
+			http.Error(w, "Erro ao atualizar nota", http.StatusInternalServerError)
+			return
+		}
+	} else {
+		// Criar nova nota
+		nota = &models.Nota{
+			AlunoID:     input.AlunoID,
+			AtividadeID: input.AtividadeID,
+			Nota:        input.Nota,
+		}
+		if err := notaRepo.Create(nota); err != nil {
+			http.Error(w, "Erro ao atribuir nota", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode("Nota atribuída com sucesso!")
 }

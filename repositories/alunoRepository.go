@@ -28,17 +28,17 @@ func (r *alunoRepositoryImpl) Create(aluno *models.Aluno) error {
 	return database.DB.Create(aluno).Error
 }
 
-// FindByID encontra um aluno por ID
+// FindByID encontra um aluno por ID, incluindo suas turmas com atividades e notas
 func (r *alunoRepositoryImpl) FindByID(id uint) (*models.Aluno, error) {
 	var aluno models.Aluno
-	err := database.DB.Preload("Turmas").First(&aluno, id).Error
+	err := database.DB.Preload("Turmas").Preload("Turmas.Atividades").Preload("Turmas.Atividades.Notas").First(&aluno, id).Error
 	return &aluno, err
 }
 
-// FindAll retorna todos os alunos do banco de dados
+// FindAll retorna todos os alunos do banco de dados, incluindo suas turmas com atividades e notas
 func (r *alunoRepositoryImpl) FindAll() ([]models.Aluno, error) {
 	var alunos []models.Aluno
-	err := database.DB.Preload("Turmas").Find(&alunos).Error
+	err := database.DB.Preload("Turmas").Preload("Turmas.Atividades").Preload("Turmas.Atividades.Notas").Find(&alunos).Error
 	return alunos, err
 }
 

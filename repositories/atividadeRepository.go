@@ -30,7 +30,7 @@ func (r *AtividadeRepositoryImpl) Create(atividade *models.Atividade) error {
 // FindByID encontra uma Atividade por ID
 func (r *AtividadeRepositoryImpl) FindByID(id uint) (*models.Atividade, error) {
 	var atividade models.Atividade
-	err := database.DB.First(&atividade, id).Error
+	err := database.DB.Preload("Notas").First(&atividade, id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (r *AtividadeRepositoryImpl) FindByID(id uint) (*models.Atividade, error) {
 // FindAll retorna todas as Atividades do banco de dados
 func (r *AtividadeRepositoryImpl) FindAll() ([]models.Atividade, error) {
 	var atividades []models.Atividade
-	err := database.DB.Find(&atividades).Error
+	err := database.DB.Preload("Notas").Find(&atividades).Error
 	return atividades, err
 }
 

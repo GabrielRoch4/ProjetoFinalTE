@@ -10,7 +10,7 @@ import (
 
 var alunoRepo = repositories.NewAlunoRepository()
 
-// GetAluno - Obter todos os alunos
+// GetAluno - Obter todos os alunos, incluindo turmas com atividades e notas
 func GetAluno(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
@@ -33,7 +33,7 @@ func GetAluno(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(alunos)
 }
 
-// GetAlunoPorID - Obter um aluno por ID
+// GetAlunoPorID - Obter um aluno por ID, incluindo turmas com atividades e notas
 func GetAlunoPorID(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
