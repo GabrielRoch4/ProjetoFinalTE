@@ -1,4 +1,3 @@
-// repository/professorRepository.go
 package repositories
 
 import (
@@ -32,7 +31,10 @@ func (r *professorRepositoryImpl) Create(professor *models.Professor) error {
 func (r *professorRepositoryImpl) FindByID(id uint) (*models.Professor, error) {
 	var professor models.Professor
 	err := database.DB.First(&professor, id).Error
-	return &professor, err
+	if err != nil {
+		return nil, err
+	}
+	return &professor, nil
 }
 
 // FindAll retorna todos os professores do banco de dados
@@ -44,11 +46,7 @@ func (r *professorRepositoryImpl) FindAll() ([]models.Professor, error) {
 
 // Update atualiza um professor existente no banco de dados
 func (r *professorRepositoryImpl) Update(professor *models.Professor) error {
-	return database.DB.Model(&models.Professor{}).Where("id = ?", professor.ID).Updates(map[string]interface{}{
-		"Nome":  professor.Nome,
-		"Email": professor.Email,
-		"CPF":   professor.CPF,
-	}).Error
+	return database.DB.Model(professor).Updates(professor).Error
 }
 
 // Delete remove um professor do banco de dados por ID

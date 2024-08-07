@@ -8,22 +8,21 @@ import (
 	"strconv"
 )
 
-var AtividadeRepo = repositories.NewAtividadeRepository()
+var atividadeRepo = repositories.NewAtividadeRepository()
 
-func GetAtividade(w http.ResponseWriter, r *http.Request) {
+func GetAtividades(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return
 	}
 
-	atividades, err := AtividadeRepo.FindAll()
+	atividades, err := atividadeRepo.FindAll()
 	if err != nil {
 		http.Error(w, "Erro ao obter atividades", http.StatusInternalServerError)
 		return
 	}
 
 	if len(atividades) == 0 {
-		w.Header().Set("Content-Type", "application/json")
 		http.Error(w, "Não há atividades cadastradas", http.StatusNotFound)
 		return
 	}
@@ -51,13 +50,19 @@ func GetAtividadePorID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	atividade, err := AtividadeRepo.FindByID(uint(id))
+	atividade, err := atividadeRepo.FindByID(uint(id))
 	if err != nil {
+		http.Error(w, "Erro ao buscar atividade", http.StatusInternalServerError)
+		return
+	}
+
+	if atividade == nil {
 		http.Error(w, "Atividade não encontrada", http.StatusNotFound)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(atividade)
 }
 
@@ -73,7 +78,7 @@ func CreateAtividade(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := AtividadeRepo.Create(&atividade); err != nil {
+	if err := atividadeRepo.Create(&atividade); err != nil {
 		http.Error(w, "Erro ao criar atividade", http.StatusInternalServerError)
 		return
 	}
@@ -94,8 +99,13 @@ func UpdateAtividade(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existingAtividade, err := AtividadeRepo.FindByID(updatedData.ID)
+	existingAtividade, err := atividadeRepo.FindByID(updatedData.ID)
 	if err != nil {
+		http.Error(w, "Erro ao buscar atividade", http.StatusInternalServerError)
+		return
+	}
+
+	if existingAtividade == nil {
 		http.Error(w, "Atividade não encontrada", http.StatusNotFound)
 		return
 	}
@@ -104,7 +114,7 @@ func UpdateAtividade(w http.ResponseWriter, r *http.Request) {
 	existingAtividade.Valor = updatedData.Valor
 	existingAtividade.DataEntrega = updatedData.DataEntrega
 
-	if err := AtividadeRepo.Update(existingAtividade); err != nil {
+	if err := atividadeRepo.Update(existingAtividade); err != nil {
 		http.Error(w, "Erro ao atualizar atividade", http.StatusInternalServerError)
 		return
 	}
@@ -131,18 +141,18 @@ func DeleteAtividade(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	atividade, err := AtividadeRepo.FindByID(uint(id))
+	atividade, err := atividadeRepo.FindByID(uint(id))
 	if err != nil {
-		http.Error(w, "Atividade não encontrada", http.StatusNotFound)
+		http.Error(w, "Erro ao buscar atividade", http.StatusInternalServerError)
 		return
 	}
 
 	if atividade == nil {
-		http.Error(w, "Turma não encontrado", http.StatusNotFound)
+		http.Error(w, "Atividade não encontrada", http.StatusNotFound)
 		return
 	}
 
-	if err := AtividadeRepo.Delete(uint(id)); err != nil {
+	if err := atividadeRepo.Delete(uint(id)); err != nil {
 		http.Error(w, "Erro ao deletar atividade", http.StatusInternalServerError)
 		return
 	}

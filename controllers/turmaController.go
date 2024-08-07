@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-var TurmaRepo = repositories.NewTurmaRepository()
+var turmaRepo = repositories.NewTurmaRepository()
 
 func GetTurma(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -16,21 +16,20 @@ func GetTurma(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Turmas, err := TurmaRepo.FindAll()
+	turmas, err := turmaRepo.FindAll()
 	if err != nil {
-		http.Error(w, "Erro ao obter Turmas", http.StatusInternalServerError)
+		http.Error(w, "Erro ao obter turmas", http.StatusInternalServerError)
 		return
 	}
 
-	if len(Turmas) == 0 {
-		w.Header().Set("Content-Type", "application/json")
+	if len(turmas) == 0 {
 		http.Error(w, "Não há turmas cadastradas", http.StatusNotFound)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(Turmas)
+	json.NewEncoder(w).Encode(turmas)
 }
 
 func GetTurmaPorID(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +38,6 @@ func GetTurmaPorID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Obtendo o ID a partir dos parâmetros de consulta
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {
 		http.Error(w, "ID não fornecido", http.StatusBadRequest)
@@ -52,14 +50,20 @@ func GetTurmaPorID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Turma, err := TurmaRepo.FindByID(uint(id))
+	turma, err := turmaRepo.FindByID(uint(id))
 	if err != nil {
-		http.Error(w, "Turma não encontrada!", http.StatusNotFound)
+		http.Error(w, "Erro ao buscar turma", http.StatusInternalServerError)
+		return
+	}
+
+	if turma == nil {
+		http.Error(w, "Turma não encontrada", http.StatusNotFound)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(Turma)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(turma)
 }
 
 func CreateTurma(w http.ResponseWriter, r *http.Request) {
@@ -68,19 +72,19 @@ func CreateTurma(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var Turma models.Turma
-	if err := json.NewDecoder(r.Body).Decode(&Turma); err != nil {
+	var turma models.Turma
+	if err := json.NewDecoder(r.Body).Decode(&turma); err != nil {
 		http.Error(w, "Dados inválidos", http.StatusBadRequest)
 		return
 	}
 
-	if err := TurmaRepo.Create(&Turma); err != nil {
-		http.Error(w, "Erro ao criar Turma", http.StatusInternalServerError)
+	if err := turmaRepo.Create(&turma); err != nil {
+		http.Error(w, "Erro ao criar turma", http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(Turma)
+	json.NewEncoder(w).Encode(turma)
 }
 
 func UpdateTurma(w http.ResponseWriter, r *http.Request) {
@@ -95,9 +99,14 @@ func UpdateTurma(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existingTurma, err := TurmaRepo.FindByID(updatedData.ID)
+	existingTurma, err := turmaRepo.FindByID(updatedData.ID)
 	if err != nil {
-		http.Error(w, "Turma não encontrado", http.StatusNotFound)
+		http.Error(w, "Erro ao buscar turma", http.StatusInternalServerError)
+		return
+	}
+
+	if existingTurma == nil {
+		http.Error(w, "Turma não encontrada", http.StatusNotFound)
 		return
 	}
 
@@ -105,8 +114,8 @@ func UpdateTurma(w http.ResponseWriter, r *http.Request) {
 	existingTurma.Semestre = updatedData.Semestre
 	existingTurma.Ano = updatedData.Ano
 
-	if err := TurmaRepo.Update(existingTurma); err != nil {
-		http.Error(w, "Erro ao atualizar Turma", http.StatusInternalServerError)
+	if err := turmaRepo.Update(existingTurma); err != nil {
+		http.Error(w, "Erro ao atualizar turma", http.StatusInternalServerError)
 		return
 	}
 
@@ -120,7 +129,6 @@ func DeleteTurma(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Obtendo o ID a partir dos parâmetros de consulta
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {
 		http.Error(w, "ID não fornecido", http.StatusBadRequest)
@@ -133,24 +141,71 @@ func DeleteTurma(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verificando se o professor existe
-	Turma, err := TurmaRepo.FindByID(uint(id))
+	turma, err := turmaRepo.FindByID(uint(id))
 	if err != nil {
-		http.Error(w, "Turma não encontrado", http.StatusNotFound)
-		return
-	}
-	if Turma == nil {
-		http.Error(w, "Turma não encontrado", http.StatusNotFound)
+		http.Error(w, "Erro ao buscar turma", http.StatusInternalServerError)
 		return
 	}
 
-	// Tentativa de exclusão do professor pelo ID
-	err = TurmaRepo.Delete(uint(id))
-	if err != nil {
-		http.Error(w, "Erro ao deletar Turma", http.StatusInternalServerError)
+	if turma == nil {
+		http.Error(w, "Turma não encontrada", http.StatusNotFound)
+		return
+	}
+
+	if err := turmaRepo.Delete(uint(id)); err != nil {
+		http.Error(w, "Erro ao deletar turma", http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode("Deletado com sucesso!")
+}
+
+func AdicionarAluno(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var input struct {
+		TurmaID uint `json:"turma_id"`
+		AlunoID uint `json:"aluno_id"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Dados inválidos", http.StatusBadRequest)
+		return
+	}
+
+	turma, err := turmaRepo.FindByID(input.TurmaID)
+	if err != nil {
+		http.Error(w, "Erro ao buscar turma", http.StatusInternalServerError)
+		return
+	}
+
+	if turma == nil {
+		http.Error(w, "Turma não encontrada", http.StatusNotFound)
+		return
+	}
+
+	aluno, err := alunoRepo.FindByID(input.AlunoID) // Usando o repositório de alunos
+	if err != nil {
+		http.Error(w, "Erro ao buscar aluno", http.StatusInternalServerError)
+		return
+	}
+
+	if aluno == nil {
+		http.Error(w, "Aluno não encontrado", http.StatusNotFound)
+		return
+	}
+
+	turma.Alunos = append(turma.Alunos, *aluno)
+
+	if err := turmaRepo.Update(turma); err != nil {
+		http.Error(w, "Erro ao adicionar aluno à turma", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode("Aluno adicionado à turma com sucesso!")
 }

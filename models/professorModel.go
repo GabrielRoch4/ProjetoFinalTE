@@ -9,6 +9,7 @@ type Professor struct {
 	Nome      string     `gorm:"not null;size:50"`
 	Email     string     `gorm:"not null;unique;size:100"`
 	CPF       string     `gorm:"not null;unique;size:14"`
+	Turmas    []Turma    `gorm:"foreignKey:ProfessorID"`
 	CreatedAt *time.Time `gorm:"autoCreateTime"`
 	UpdatedAt *time.Time `gorm:"autoUpdateTime"`
 }
