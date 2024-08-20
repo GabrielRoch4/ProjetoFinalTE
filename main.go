@@ -15,6 +15,7 @@ func main() {
 	// Configuração do roteador com CORS
 	router := routes.Router()
 	corsHandler := configureCORS(router)
+	// database.Seed(database.DB)
 
 	// Inicia o servidor
 	_ = http.ListenAndServe(":3333", corsHandler)

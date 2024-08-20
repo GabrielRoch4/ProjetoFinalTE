@@ -12,6 +12,7 @@ type AtividadeRepository interface {
 	FindAll() ([]models.Atividade, error)
 	Update(atividade *models.Atividade) error
 	Delete(id uint) error
+	GetTotalValorByTurmaID(turmaID uint) (float64, error)
 }
 
 // AtividadeRepositoryImpl é a implementação do AtividadeRepository
@@ -52,4 +53,19 @@ func (r *AtividadeRepositoryImpl) Update(atividade *models.Atividade) error {
 // Delete remove uma Atividade do banco de dados por ID
 func (r *AtividadeRepositoryImpl) Delete(id uint) error {
 	return database.DB.Delete(&models.Atividade{}, id).Error
+}
+
+// GetTotalValorByTurmaID retorna a soma dos valores de todas as atividades de uma turma específica
+func (r *AtividadeRepositoryImpl) GetTotalValorByTurmaID(turmaID uint) (float64, error) {
+	var totalValor float64
+	err := database.DB.Model(&models.Atividade{}).
+		Where("turma_id = ?", turmaID).
+		Select("SUM(valor)").
+		Row().
+		Scan(&totalValor)
+
+	if err != nil {
+		return 0, err
+	}
+	return totalValor, nil
 }

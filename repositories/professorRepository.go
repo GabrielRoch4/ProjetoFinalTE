@@ -30,7 +30,13 @@ func (r *professorRepositoryImpl) Create(professor *models.Professor) error {
 // FindByID encontra um professor por ID
 func (r *professorRepositoryImpl) FindByID(id uint) (*models.Professor, error) {
 	var professor models.Professor
-	err := database.DB.First(&professor, id).Error
+
+	err := database.DB.
+		Preload("Turmas").
+		Preload("Turmas.Atividades").
+		Preload("Turmas.Alunos").
+		First(&professor, id).Error
+
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +46,13 @@ func (r *professorRepositoryImpl) FindByID(id uint) (*models.Professor, error) {
 // FindAll retorna todos os professores do banco de dados
 func (r *professorRepositoryImpl) FindAll() ([]models.Professor, error) {
 	var professors []models.Professor
-	err := database.DB.Find(&professors).Error
+
+	err := database.DB.
+		Preload("Turmas").
+		Preload("Turmas.Atividades").
+		Preload("Turmas.Alunos").
+		Find(&professors).Error
+
 	return professors, err
 }
 

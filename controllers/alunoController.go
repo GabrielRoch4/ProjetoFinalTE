@@ -54,7 +54,7 @@ func GetAlunoPorID(w http.ResponseWriter, r *http.Request) {
 
 	aluno, err := alunoRepo.FindByID(uint(id))
 	if err != nil {
-		http.Error(w, "Erro ao buscar aluno", http.StatusInternalServerError)
+		http.Error(w, "Aluno não encontrado", http.StatusNotFound)
 		return
 	}
 

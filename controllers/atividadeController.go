@@ -111,6 +111,21 @@ func UpdateAtividade(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Calcula o valor total das atividades da turma
+	totalValor, err := atividadeRepo.GetTotalValorByTurmaID(existingAtividade.TurmaID)
+	if err != nil {
+		http.Error(w, "Erro ao calcular valor total das atividades", http.StatusInternalServerError)
+		return
+	}
+
+	// Subtrai o valor da atividade atual antes de somar o novo valor
+	totalValor -= existingAtividade.Valor
+	if totalValor+updatedData.Valor > 100 {
+		http.Error(w, "O valor total das atividades da turma não pode ultrapassar 100 pontos", http.StatusBadRequest)
+		return
+	}
+
+	// Atualiza os campos necessários
 	existingAtividade.Nome = updatedData.Nome
 	existingAtividade.Valor = updatedData.Valor
 	existingAtividade.DataEntrega = updatedData.DataEntrega
