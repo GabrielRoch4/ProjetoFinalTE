@@ -12,7 +12,8 @@ import (
 var DB *gorm.DB
 
 func DatabaseConnection() {
-	dsn := "root:@tcp(127.0.0.1:3306)/projeto_final_te?charset=utf8mb4&parseTime=True&loc=Local"
+	// dsn := "root:@tcp(127.0.0.1:3306)/projeto_final_te?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:VrTWbJHRUKjOdLyKWCLYcEiuqkeNGlxT@mysql.railway.internal:3306/railway"
 
 	var err error
 
