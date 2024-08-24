@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"ProjetoFinal/configs/database"
@@ -8,17 +8,16 @@ import (
 	"github.com/rs/cors"
 )
 
-func main() {
+func Handler(w http.ResponseWriter, r *http.Request) {
 	// Configurações do banco de dados
 	database.DatabaseConnection()
 
 	// Configuração do roteador com CORS
 	router := routes.Router()
 	corsHandler := configureCORS(router)
-	// database.Seed(database.DB)
 
-	// Inicia o servidor
-	_ = http.ListenAndServe(":3333", corsHandler)
+	// Serve o request usando o roteador configurado
+	corsHandler.ServeHTTP(w, r)
 }
 
 // configureCORS configura o middleware CORS
