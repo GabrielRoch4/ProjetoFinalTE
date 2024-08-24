@@ -45,17 +45,17 @@ func (r *alunoRepositoryImpl) FindAll() ([]models.Aluno, error) {
 // Update atualiza um aluno existente no banco de dados
 func (r *alunoRepositoryImpl) Update(aluno *models.Aluno) error {
 	if err := database.DB.Model(&models.Aluno{}).Where("id = ?", aluno.ID).Updates(map[string]interface{}{
-        	"Nome":      aluno.Nome,
-        	"Matricula": aluno.Matricula,
-    	}).Error; err != nil {
-        	return err
-    	}
-
-    	if err := database.DB.Model(&aluno).Association("Turmas").Replace(aluno.Turmas).Error; err != nil {
-        	return err
-    	}
+	        "Nome":      aluno.Nome,
+	        "Matricula": aluno.Matricula,
+	}).Error; err != nil {
+		return err
+	}
 	
-    	return nil
+	if err := database.DB.Model(aluno).Association("Turmas").Replace(aluno.Turmas).Error; err != nil {
+	        return err
+	}
+	
+	return nil
 }
 
 // Delete remove um aluno do banco de dados por ID
