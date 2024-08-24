@@ -13,14 +13,11 @@ var DB *gorm.DB
 
 func DatabaseConnection() {
 	// dsn := "root:@tcp(127.0.0.1:3306)/projeto_final_te?charset=utf8mb4&parseTime=True&loc=Local"
-	dsn := "root:VrTWbJHRUKjOdLyKWCLYcEiuqkeNGlxT@mysql.railway.internal:3306/railway"
-
+	dsn := "root:VrTWbJHRUKjOdLyKWCLYcEiuqkeNGlxT@tcp(autorack.proxy.rlwy.net:53164)/railway?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
-
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
 	if err != nil {
-		log.Fatalf("failed to connect database: %v", err)
+		log.Fatalf("failed to connect to database: %v", err)
 	}
 
 	err = DB.AutoMigrate(
