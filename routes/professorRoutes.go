@@ -5,9 +5,11 @@ import (
 	"net/http"
 )
 
-func ProfessorRoutes() {
-	http.HandleFunc("/professores", controllers.GetProfessor)
-	http.HandleFunc("/professores/cadastrar", controllers.CreateProfessor)
-	http.HandleFunc("/professores/atualizar", controllers.UpdateProfessor)
-	http.HandleFunc("/professores/deletar", controllers.DeleteProfessor)
+// ProfessorRoutes configura as rotas relacionadas a professores
+func ProfessorRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/professores", controllers.GetProfessores)
+	mux.HandleFunc("/professores/", controllers.GetProfessorPorID)
+	mux.HandleFunc("/professores/cadastrar", controllers.CreateProfessor)
+	mux.HandleFunc("/professores/atualizar", controllers.UpdateProfessor)
+	mux.HandleFunc("/professores/deletar", controllers.DeleteProfessor)
 }

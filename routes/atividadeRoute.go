@@ -5,9 +5,11 @@ import (
 	"net/http"
 )
 
-func AtividadeRoutes() {
-	http.HandleFunc("/turmas/atividades", controllers.GetAtividade)
-	http.HandleFunc("/turmas/atividades/cadastrar", controllers.CreateAtividade)
-	http.HandleFunc("/turmas/atividades/atualizar", controllers.UpdateAtividade)
-	http.HandleFunc("/turmas/atividades/deletar", controllers.DeleteAtividade)
+func AtividadeRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/atividades", controllers.GetAtividades)
+	mux.HandleFunc("/atividades/", controllers.GetAtividadePorID)
+	mux.HandleFunc("/atividades/cadastrar", controllers.CreateAtividade)
+	mux.HandleFunc("/atividades/atualizar", controllers.UpdateAtividade)
+	mux.HandleFunc("/atividades/deletar", controllers.DeleteAtividade)
+	mux.HandleFunc("/nota/atribuir", controllers.AtribuirNota)
 }

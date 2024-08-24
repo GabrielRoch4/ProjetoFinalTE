@@ -1,16 +1,33 @@
 package main
 
 import (
+	"ProjetoFinal/configs/database"
 	"ProjetoFinal/routes"
 	"net/http"
+
+	"github.com/rs/cors"
 )
 
 func main() {
+	// Configurações do banco de dados
+	database.DatabaseConnection()
 
-	routes.TurmaRoutes()
-	routes.ProfessorRoutes()
-	routes.AlunoRoutes()
-	routes.AtividadeRoutes()
+	// Configuração do roteador com CORS
+	router := routes.Router()
+	corsHandler := configureCORS(router)
+	// database.Seed(database.DB)
 
-	_ = http.ListenAndServe(":3333", nil)
+	// Inicia o servidor
+	_ = http.ListenAndServe(":3333", corsHandler)
+}
+
+// configureCORS configura o middleware CORS
+func configureCORS(handler http.Handler) http.Handler {
+	corsOptions := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	})
+	return corsOptions.Handler(handler)
 }
