@@ -11,4 +11,5 @@ func TurmaRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/turmas/cadastrar", controllers.CreateTurma)
 	mux.HandleFunc("/turmas/atualizar", controllers.UpdateTurma)
 	mux.HandleFunc("/turmas/deletar", controllers.DeleteTurma)
+	mux.HandleFunc("/turmas/adicionarAluno", controllers.AdicionarAluno)
 }

@@ -10,6 +10,7 @@ import (
 
 var alunoRepo = repositories.NewAlunoRepository()
 
+// GetAluno - Obter todos os alunos, incluindo turmas com atividades e notas
 func GetAluno(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
@@ -22,26 +23,23 @@ func GetAluno(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Caso a lista de alunos esteja vazia, retornará um array vazio
 	if len(alunos) == 0 {
-		w.Header().Set("Content-Type", "application/json")
 		http.Error(w, "Não há alunos cadastrados", http.StatusNotFound)
 		return
 	}
 
-	// Se houver alunos, retornará a lista normalmente
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(alunos)
 }
 
+// GetAlunoPorID - Obter um aluno por ID, incluindo turmas com atividades e notas
 func GetAlunoPorID(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Obtendo o ID a partir dos parâmetros de consulta
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {
 		http.Error(w, "ID não fornecido", http.StatusBadRequest)
@@ -56,14 +54,21 @@ func GetAlunoPorID(w http.ResponseWriter, r *http.Request) {
 
 	aluno, err := alunoRepo.FindByID(uint(id))
 	if err != nil {
-		http.Error(w, "Erro ao buscar aluno", http.StatusInternalServerError)
+		http.Error(w, "Aluno não encontrado", http.StatusNotFound)
+		return
+	}
+
+	if aluno == nil {
+		http.Error(w, "Aluno não encontrado", http.StatusNotFound)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(aluno)
 }
 
+// CreateAluno - Criar um novo aluno
 func CreateAluno(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
@@ -82,9 +87,11 @@ func CreateAluno(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(aluno)
 }
 
+// UpdateAluno - Atualizar um aluno existente
 func UpdateAluno(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
@@ -99,6 +106,11 @@ func UpdateAluno(w http.ResponseWriter, r *http.Request) {
 
 	existingAluno, err := alunoRepo.FindByID(updatedData.ID)
 	if err != nil {
+		http.Error(w, "Erro ao buscar aluno", http.StatusInternalServerError)
+		return
+	}
+
+	if existingAluno == nil {
 		http.Error(w, "Aluno não encontrado", http.StatusNotFound)
 		return
 	}
@@ -112,16 +124,17 @@ func UpdateAluno(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode("Atualizado com sucesso!")
 }
 
+// DeleteAluno - Excluir um aluno por ID
 func DeleteAluno(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Obtendo o ID a partir dos parâmetros de consulta
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {
 		http.Error(w, "ID não fornecido", http.StatusBadRequest)
@@ -134,18 +147,17 @@ func DeleteAluno(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verificando se o professor existe
 	aluno, err := alunoRepo.FindByID(uint(id))
 	if err != nil {
-		http.Error(w, "Aluno não encontrado", http.StatusNotFound)
+		http.Error(w, "Erro ao buscar aluno", http.StatusInternalServerError)
 		return
 	}
+
 	if aluno == nil {
 		http.Error(w, "Aluno não encontrado", http.StatusNotFound)
 		return
 	}
 
-	// Tentativa de exclusão do professor pelo ID
 	err = alunoRepo.Delete(uint(id))
 	if err != nil {
 		http.Error(w, "Erro ao deletar aluno", http.StatusInternalServerError)

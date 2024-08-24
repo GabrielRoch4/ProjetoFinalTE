@@ -27,6 +27,7 @@ func DatabaseConnection() {
 		&models.Aluno{},
 		&models.Atividade{},
 		&models.Turma{},
+		&models.Nota{},
 	)
 
 	if err != nil {
