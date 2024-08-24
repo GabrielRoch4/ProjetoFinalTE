@@ -6,6 +6,7 @@ import (
 
 type Atividade struct {
 	ID          uint      `gorm:"primaryKey;autoIncrement"`
+	Nome        string    `gorm:"not null;size:100"`
 	Valor       float64   `gorm:"type:decimal(5,2);not null"`
 	DataEntrega time.Time `gorm:"not null"`
 	TurmaID     uint      `gorm:"not null"`

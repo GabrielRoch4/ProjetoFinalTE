@@ -34,8 +34,8 @@ func Seed(db *gorm.DB) {
 	}
 
 	atividades := []models.Atividade{
-		{Valor: 10.00, DataEntrega: time.Now().Add(48 * time.Hour), TurmaID: 1},
-		{Valor: 20.00, DataEntrega: time.Now().Add(72 * time.Hour), TurmaID: 2},
+		{Nome: "Atividade 1", Valor: 10.00, DataEntrega: time.Now().Add(48 * time.Hour), TurmaID: 1},
+		{Nome: "Atividade 2", Valor: 20.00, DataEntrega: time.Now().Add(72 * time.Hour), TurmaID: 2},
 	}
 
 	notas := []models.Nota{

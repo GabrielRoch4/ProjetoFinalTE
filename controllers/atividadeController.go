@@ -126,6 +126,7 @@ func UpdateAtividade(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Atualiza os campos necessários
+	existingAtividade.Nome = updatedData.Nome
 	existingAtividade.Valor = updatedData.Valor
 	existingAtividade.DataEntrega = updatedData.DataEntrega
 
