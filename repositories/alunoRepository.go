@@ -51,11 +51,7 @@ func (r *alunoRepositoryImpl) Update(aluno *models.Aluno) error {
 		return err
 	}
 	
-	if err := database.DB.Model(aluno).Association("Turmas").Replace(aluno.Turmas).Error; err != nil {
-	        return err
-	}
-	
-	return nil
+	return database.DB.Model(aluno).Association("Turmas").Replace(aluno.Turmas).Error
 }
 
 // Delete remove um aluno do banco de dados por ID
