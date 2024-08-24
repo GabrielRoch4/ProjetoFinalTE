@@ -47,6 +47,7 @@ func (r *alunoRepositoryImpl) Update(aluno *models.Aluno) error {
 	return database.DB.Model(&models.Aluno{}).Where("id = ?", aluno.ID).Updates(map[string]interface{}{
 		"Nome":      aluno.Nome,
 		"Matricula": aluno.Matricula,
+		"Turmas": aluno.Turmas
 	}).Error
 }
 
