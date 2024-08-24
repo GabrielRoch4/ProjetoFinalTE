@@ -212,6 +212,12 @@ func AtribuirNota(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validação para garantir que a nota não seja maior que o valor da atividade
+	if input.Nota > atividade.Valor {
+		http.Error(w, "Nota não pode ser maior que o valor da atividade", http.StatusBadRequest)
+		return
+	}
+
 	// Verificar se o aluno existe
 	aluno, err := alunoRepo.FindByID(input.AlunoID)
 	if err != nil {
