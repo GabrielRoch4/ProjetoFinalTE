@@ -117,6 +117,7 @@ func UpdateAluno(w http.ResponseWriter, r *http.Request) {
 
 	existingAluno.Nome = updatedData.Nome
 	existingAluno.Matricula = updatedData.Matricula
+	existingAluno.Turmas = updatedData.Turmas
 
 	if err := alunoRepo.Update(existingAluno); err != nil {
 		http.Error(w, "Erro ao atualizar aluno", http.StatusInternalServerError)
