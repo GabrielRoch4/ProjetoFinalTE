@@ -13,7 +13,7 @@
       }
     ],
     "functions": {
-      "api/atividadeController.go": {
+      "controllers/atividadeController.go": {
         "maxDuration": 10
       }
     }
