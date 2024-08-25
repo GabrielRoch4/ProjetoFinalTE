@@ -207,6 +207,17 @@ func AtribuirNota(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+	atividade, err := atividadeRepo.FindByID(input.AtividadeID)
+    if err != nil {
+        http.Error(w, "Erro ao buscar atividade", http.StatusInternalServerError)
+        return
+    }
+
+    if input.Nota > atividade.Valor {
+        http.Error(w, "Nota não pode ser maior que o valor máximo da atividade", http.StatusBadRequest)
+        return
+    }
+
     nota, err := notaRepo.FindByAlunoAndAtividade(input.AlunoID, input.AtividadeID)
     if err != nil {
         http.Error(w, "Erro ao buscar nota", http.StatusInternalServerError)
