@@ -68,24 +68,37 @@ func GetAtividadePorID(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateAtividade(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
-		return
-	}
+    if r.Method != http.MethodPost {
+        http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+        return
+    }
 
-	var atividade models.Atividade
-	if err := json.NewDecoder(r.Body).Decode(&atividade); err != nil {
-		http.Error(w, "Dados inválidos", http.StatusBadRequest)
-		return
-	}
+    var atividade models.Atividade
+    if err := json.NewDecoder(r.Body).Decode(&atividade); err != nil {
+        http.Error(w, "Dados inválidos", http.StatusBadRequest)
+        return
+    }
 
-	if err := atividadeRepo.Create(&atividade); err != nil {
-		http.Error(w, "Erro ao criar atividade", http.StatusInternalServerError)
-		return
-	}
+    // Calcula o valor total das atividades da turma
+    totalValor, err := atividadeRepo.GetTotalValorByTurmaID(atividade.TurmaID)
+    if err != nil {
+        http.Error(w, "Erro ao calcular valor total das atividades", http.StatusInternalServerError)
+        return
+    }
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(atividade)
+    // Verifica se o valor total das atividades da turma ultrapassa 100 pontos
+    if totalValor+atividade.Valor > 100 {
+        http.Error(w, "O valor total das atividades da turma não pode ultrapassar 100 pontos", http.StatusBadRequest)
+        return
+    }
+
+    if err := atividadeRepo.Create(&atividade); err != nil {
+        http.Error(w, "Erro ao criar atividade", http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusCreated)
+    json.NewEncoder(w).Encode(atividade)
 }
 
 func UpdateAtividade(w http.ResponseWriter, r *http.Request) {
@@ -178,85 +191,87 @@ func DeleteAtividade(w http.ResponseWriter, r *http.Request) {
 }
 
 func AtribuirNota(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
-		return
-	}
+    if r.Method != http.MethodPost {
+        http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+        return
+    }
 
-	var input struct {
-		AlunoID     uint    `json:"aluno_id"`
-		AtividadeID uint    `json:"atividade_id"`
-		Nota        float64 `json:"nota"`
-	}
+    var inputs []struct {
+        AlunoID     uint    `json:"AlunoID"`
+        AtividadeID uint    `json:"AtividadeID"`
+        Nota        float64 `json:"Nota"`
+    }
 
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, "Dados inválidos", http.StatusBadRequest)
-		return
-	}
+    if err := json.NewDecoder(r.Body).Decode(&inputs); err != nil {
+        http.Error(w, "Dados inválidos", http.StatusBadRequest)
+        return
+    }
 
-	// Validação dos dados
-	if input.Nota < 0 {
-		http.Error(w, "Valor da nota inválido", http.StatusBadRequest)
-		return
-	}
+    for _, input := range inputs {
+        // Validação dos dados
+        if input.Nota < 0 {
+            http.Error(w, "Valor da nota inválido", http.StatusBadRequest)
+            return
+        }
 
-	// Verificar se a atividade existe
-	atividade, err := atividadeRepo.FindByID(input.AtividadeID)
-	if err != nil {
-		http.Error(w, "Erro ao buscar atividade", http.StatusInternalServerError)
-		return
-	}
+        // Verificar se a atividade existe
+        atividade, err := atividadeRepo.FindByID(input.AtividadeID)
+        if err != nil {
+            http.Error(w, "Erro ao buscar atividade", http.StatusInternalServerError)
+            return
+        }
 
-	if atividade == nil {
-		http.Error(w, "Atividade não encontrada", http.StatusNotFound)
-		return
-	}
+        if atividade == nil {
+            http.Error(w, "Atividade não encontrada", http.StatusNotFound)
+            return
+        }
 
-	// Validação para garantir que a nota não seja maior que o valor da atividade
-	if input.Nota > atividade.Valor {
-		http.Error(w, "Nota não pode ser maior que o valor da atividade", http.StatusBadRequest)
-		return
-	}
+        // Validação para garantir que a nota não seja maior que o valor da atividade
+        if input.Nota > atividade.Valor {
+            http.Error(w, "Nota não pode ser maior que o valor da atividade", http.StatusBadRequest)
+            return
+        }
 
-	// Verificar se o aluno existe
-	aluno, err := alunoRepo.FindByID(input.AlunoID)
-	if err != nil {
-		http.Error(w, "Erro ao buscar aluno", http.StatusInternalServerError)
-		return
-	}
+        // Verificar se o aluno existe
+        aluno, err := alunoRepo.FindByID(input.AlunoID)
+        if err != nil {
+            http.Error(w, "Erro ao buscar aluno", http.StatusInternalServerError)
+            return
+        }
 
-	if aluno == nil {
-		http.Error(w, "Aluno não encontrado", http.StatusNotFound)
-		return
-	}
+        if aluno == nil {
+            http.Error(w, "Aluno não encontrado", http.StatusNotFound)
+            return
+        }
 
-	// Verificar se a nota já existe para o aluno e a atividade
-	nota, err := notaRepo.FindByAlunoAndAtividade(input.AlunoID, input.AtividadeID)
-	if err != nil && err.Error() != "record not found" {
-		http.Error(w, "Erro ao buscar nota", http.StatusInternalServerError)
-		return
-	}
+        // Verificar se a nota já existe para o aluno e a atividade
+        nota, err := notaRepo.FindByAlunoAndAtividade(input.AlunoID, input.AtividadeID)
+        if err != nil && err.Error() != "record not found" {
+            http.Error(w, "Erro ao buscar nota", http.StatusInternalServerError)
+            return
+        }
 
-	if nota != nil {
-		// Atualizar nota existente
-		nota.Nota = input.Nota
-		if err := notaRepo.Update(nota); err != nil {
-			http.Error(w, "Erro ao atualizar nota", http.StatusInternalServerError)
-			return
-		}
-	} else {
-		// Criar nova nota
-		nota = &models.Nota{
-			AlunoID:     input.AlunoID,
-			AtividadeID: input.AtividadeID,
-			Nota:        input.Nota,
-		}
-		if err := notaRepo.Create(nota); err != nil {
-			http.Error(w, "Erro ao atribuir nota", http.StatusInternalServerError)
-			return
-		}
-	}
+        if nota != nil {
+            // Atualizar nota existente
+            nota.Nota = input.Nota
+            if err := notaRepo.Update(nota); err != nil {
+                http.Error(w, "Erro ao atualizar nota", http.StatusInternalServerError)
+                return
+            }
+        } else {
+            // Criar nova nota
+            nota = &models.Nota{
+                AlunoID:     input.AlunoID,
+                AtividadeID: input.AtividadeID,
+                Nota:        input.Nota,
+            }
+            if err := notaRepo.Create(nota); err != nil {
+                http.Error(w, "Erro ao atribuir nota", http.StatusInternalServerError)
+                return
+            }
+        }
+    }
 
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode("Nota atribuída com sucesso!")
+    w.WriteHeader(http.StatusCreated)
+    json.NewEncoder(w).Encode("Notas atribuídas com sucesso!")
 }
