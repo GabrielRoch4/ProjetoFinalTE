@@ -218,6 +218,11 @@ func AtribuirNota(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+	if input.Nota < 0 {
+		http.Error(w, "Nota não pode ser menor que 0", http.StatusBadRequest)
+		return
+	}
+
     nota, err := notaRepo.FindByAlunoAndAtividade(input.AlunoID, input.AtividadeID)
     if err != nil {
         http.Error(w, "Erro ao buscar nota", http.StatusInternalServerError)
