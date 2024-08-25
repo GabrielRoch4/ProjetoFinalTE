@@ -11,4 +11,5 @@ func AlunoRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/alunos/cadastrar", controllers.CreateAluno)
 	mux.HandleFunc("/alunos/atualizar", controllers.UpdateAluno)
 	mux.HandleFunc("/alunos/deletar", controllers.DeleteAluno)
+	mux.HandleFunc("/alunos/turma", controllers.GetAlunosPorTurmaID)
 }

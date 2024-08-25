@@ -168,3 +168,38 @@ func DeleteAluno(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode("Deletado com sucesso!")
 }
+
+// GetAlunoPorTurmaID - Obter alunos por ID da turma
+func GetAlunoPorTurmaID(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+		return
+	}
+
+	turmaIDStr := r.URL.Query().Get("id")
+	if turmaIDStr == "" {
+		http.Error(w, "ID da turma não fornecido", http.StatusBadRequest)
+		return
+	}
+
+	turmaID, err := strconv.Atoi(turmaIDStr)
+	if err != nil || turmaID <= 0 {
+		http.Error(w, "ID da turma inválido", http.StatusBadRequest)
+		return
+	}
+
+	alunos, err := alunoRepo.FindByTurmaID(uint(turmaID))
+	if err != nil {
+		http.Error(w, "Erro ao obter alunos", http.StatusInternalServerError)
+		return
+	}
+
+	if len(alunos) == 0 {
+		http.Error(w, "Não há alunos cadastrados nessa turma", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(alunos)
+}
