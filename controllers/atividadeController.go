@@ -207,72 +207,91 @@ func AtribuirNota(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    var erros []string
+    var resultados []map[string]interface{}
 
     for _, input := range inputs {
+        resultado := map[string]interface{}{
+            "AlunoID":     input.AlunoID,
+            "AtividadeID": input.AtividadeID,
+        }
+
+        // Validação dos dados
         if input.Nota < 0 {
-            erros = append(erros, "Valor da nota inválido para AlunoID: "+strconv.Itoa(int(input.AlunoID))+" e AtividadeID: "+strconv.Itoa(int(input.AtividadeID)))
+            resultado["erro"] = "Valor da nota inválido"
+            resultados = append(resultados, resultado)
             continue
         }
 
+        // Verificar se a atividade existe
         atividade, err := atividadeRepo.FindByID(input.AtividadeID)
         if err != nil {
-            erros = append(erros, "Erro ao buscar atividade para AtividadeID: "+strconv.Itoa(int(input.AtividadeID)))
+            resultado["erro"] = "Erro ao buscar atividade"
+            resultados = append(resultados, resultado)
             continue
         }
 
         if atividade == nil {
-            erros = append(erros, "Atividade não encontrada para AtividadeID: "+strconv.Itoa(int(input.AtividadeID)))
+            resultado["erro"] = "Atividade não encontrada"
+            resultados = append(resultados, resultado)
             continue
         }
 
+        // Validação para garantir que a nota não seja maior que o valor da atividade
         if input.Nota > atividade.Valor {
-            erros = append(erros, "Nota não pode ser maior que o valor da atividade para AlunoID: "+strconv.Itoa(int(input.AlunoID))+" e AtividadeID: "+strconv.Itoa(int(input.AtividadeID)))
+            resultado["erro"] = "Nota não pode ser maior que o valor da atividade"
+            resultados = append(resultados, resultado)
             continue
         }
 
+        // Verificar se o aluno existe
         aluno, err := alunoRepo.FindByID(input.AlunoID)
         if err != nil {
-            erros = append(erros, "Erro ao buscar aluno para AlunoID: "+strconv.Itoa(int(input.AlunoID)))
+            resultado["erro"] = "Erro ao buscar aluno"
+            resultados = append(resultados, resultado)
             continue
         }
 
         if aluno == nil {
-            erros = append(erros, "Aluno não encontrado para AlunoID: "+strconv.Itoa(int(input.AlunoID)))
+            resultado["erro"] = "Aluno não encontrado"
+            resultados = append(resultados, resultado)
             continue
         }
 
+        // Verificar se a nota já existe para o aluno e a atividade
         nota, err := notaRepo.FindByAlunoAndAtividade(input.AlunoID, input.AtividadeID)
         if err != nil && err.Error() != "record not found" {
-            erros = append(erros, "Erro ao buscar nota para AlunoID: "+strconv.Itoa(int(input.AlunoID))+" e AtividadeID: "+strconv.Itoa(int(input.AtividadeID)))
+            resultado["erro"] = "Erro ao buscar nota"
+            resultados = append(resultados, resultado)
             continue
         }
 
         if nota != nil {
+            // Atualizar nota existente
             nota.Nota = input.Nota
             if err := notaRepo.Update(nota); err != nil {
-                erros = append(erros, "Erro ao atualizar nota para AlunoID: "+strconv.Itoa(int(input.AlunoID))+" e AtividadeID: "+strconv.Itoa(int(input.AtividadeID)))
+                resultado["erro"] = "Erro ao atualizar nota"
+                resultados = append(resultados, resultado)
                 continue
             }
         } else {
+            // Criar nova nota
             nota = &models.Nota{
                 AlunoID:     input.AlunoID,
                 AtividadeID: input.AtividadeID,
                 Nota:        input.Nota,
             }
             if err := notaRepo.Create(nota); err != nil {
-                erros = append(erros, "Erro ao atribuir nota para AlunoID: "+strconv.Itoa(int(input.AlunoID))+" e AtividadeID: "+strconv.Itoa(int(input.AtividadeID)))
+                resultado["erro"] = "Erro ao atribuir nota"
+                resultados = append(resultados, resultado)
                 continue
             }
         }
+
+        resultado["status"] = "Nota atribuída com sucesso"
+        resultados = append(resultados, resultado)
     }
 
-    if len(erros) > 0 {
-        w.WriteHeader(http.StatusBadRequest)
-        json.NewEncoder(w).Encode(erros)
-        return
-    }
-
-    w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode("Notas atribuídas com sucesso!")
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+    json.NewEncoder(w).Encode(resultados)
 }
