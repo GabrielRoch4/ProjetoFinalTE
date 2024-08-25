@@ -207,69 +207,70 @@ func AtribuirNota(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    var erros []string
+
     for _, input := range inputs {
-        // Validação dos dados
         if input.Nota < 0 {
-            http.Error(w, "Valor da nota inválido", http.StatusBadRequest)
-            return
+            erros = append(erros, "Valor da nota inválido para AlunoID: "+strconv.Itoa(int(input.AlunoID))+" e AtividadeID: "+strconv.Itoa(int(input.AtividadeID)))
+            continue
         }
 
-        // Verificar se a atividade existe
         atividade, err := atividadeRepo.FindByID(input.AtividadeID)
         if err != nil {
-            http.Error(w, "Erro ao buscar atividade", http.StatusInternalServerError)
-            return
+            erros = append(erros, "Erro ao buscar atividade para AtividadeID: "+strconv.Itoa(int(input.AtividadeID)))
+            continue
         }
 
         if atividade == nil {
-            http.Error(w, "Atividade não encontrada", http.StatusNotFound)
-            return
+            erros = append(erros, "Atividade não encontrada para AtividadeID: "+strconv.Itoa(int(input.AtividadeID)))
+            continue
         }
 
-        // Validação para garantir que a nota não seja maior que o valor da atividade
         if input.Nota > atividade.Valor {
-            http.Error(w, "Nota não pode ser maior que o valor da atividade", http.StatusBadRequest)
-            return
+            erros = append(erros, "Nota não pode ser maior que o valor da atividade para AlunoID: "+strconv.Itoa(int(input.AlunoID))+" e AtividadeID: "+strconv.Itoa(int(input.AtividadeID)))
+            continue
         }
 
-        // Verificar se o aluno existe
         aluno, err := alunoRepo.FindByID(input.AlunoID)
         if err != nil {
-            http.Error(w, "Erro ao buscar aluno", http.StatusInternalServerError)
-            return
+            erros = append(erros, "Erro ao buscar aluno para AlunoID: "+strconv.Itoa(int(input.AlunoID)))
+            continue
         }
 
         if aluno == nil {
-            http.Error(w, "Aluno não encontrado", http.StatusNotFound)
-            return
+            erros = append(erros, "Aluno não encontrado para AlunoID: "+strconv.Itoa(int(input.AlunoID)))
+            continue
         }
 
-        // Verificar se a nota já existe para o aluno e a atividade
         nota, err := notaRepo.FindByAlunoAndAtividade(input.AlunoID, input.AtividadeID)
         if err != nil && err.Error() != "record not found" {
-            http.Error(w, "Erro ao buscar nota", http.StatusInternalServerError)
-            return
+            erros = append(erros, "Erro ao buscar nota para AlunoID: "+strconv.Itoa(int(input.AlunoID))+" e AtividadeID: "+strconv.Itoa(int(input.AtividadeID)))
+            continue
         }
 
         if nota != nil {
-            // Atualizar nota existente
             nota.Nota = input.Nota
             if err := notaRepo.Update(nota); err != nil {
-                http.Error(w, "Erro ao atualizar nota", http.StatusInternalServerError)
-                return
+                erros = append(erros, "Erro ao atualizar nota para AlunoID: "+strconv.Itoa(int(input.AlunoID))+" e AtividadeID: "+strconv.Itoa(int(input.AtividadeID)))
+                continue
             }
         } else {
-            // Criar nova nota
             nota = &models.Nota{
                 AlunoID:     input.AlunoID,
                 AtividadeID: input.AtividadeID,
                 Nota:        input.Nota,
             }
             if err := notaRepo.Create(nota); err != nil {
-                http.Error(w, "Erro ao atribuir nota", http.StatusInternalServerError)
-                return
+                erros = append(erros, "Erro ao atribuir nota para AlunoID: "+strconv.Itoa(int(input.AlunoID))+" e AtividadeID: "+strconv.Itoa(int(input.AtividadeID)))
+                continue
             }
         }
+    }
+
+    if len(erros) > 0 {
+        w.WriteHeader(http.StatusBadRequest)
+        json.NewEncoder(w).Encode(erros)
+        return
     }
 
     w.WriteHeader(http.StatusCreated)
