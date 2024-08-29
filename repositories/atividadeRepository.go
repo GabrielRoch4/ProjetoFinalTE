@@ -60,9 +60,9 @@ func (r *AtividadeRepositoryImpl) GetTotalValorByTurmaID(turmaID uint) (float64,
 	var totalValor float64
 	err := database.DB.Model(&models.Atividade{}).
 		Where("turma_id = ?", turmaID).
-		Select("SUM(valor)").
+		Select("COALESCE(SUM(valor), 0)").
 		Row().
-		Scan(&totalValor)
+		Scan(&totalValor).Error
 
 	if err != nil {
 		return 0, err
