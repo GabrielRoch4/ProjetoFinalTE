@@ -62,7 +62,7 @@ func (r *AtividadeRepositoryImpl) GetTotalValorByTurmaID(turmaID uint) (float64,
 		Where("turma_id = ?", turmaID).
 		Select("COALESCE(SUM(valor), 0)").
 		Row().
-		Scan(&totalValor).Error
+		Scan(&totalValor)
 
 	if err != nil {
 		return 0, err
